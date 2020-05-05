@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Rocket : MonoBehaviour
 {
     [SerializeField] float rotationSpeed = 100f;
     [SerializeField] float throttleSpeed = 100f;
+
+
+    enum State {Alive, Dying, Transcending}
+    State state = State.Alive;
 
     Rigidbody rigidBody;
     AudioSource throttleSound;
@@ -21,21 +23,41 @@ public class Rocket : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Throttle(); 
-        Rotate();
+        if (state == State.Alive)
+        {
+            Throttle();
+            Rotate();
+        }
     }
 
     void OnCollisionEnter(Collision collision)
     {
+        if (state != State.Alive) return;
+
         switch (collision.gameObject.tag)
         {
             case "Friendly":
-                print("OK");
+                
+                break;
+            case "Finish":
+                Invoke("LoadNextScene", 1f); // TODO parametrise time
+                state = State.Transcending;
                 break;
             default:
-                print("Umarłeś");
+                state = State.Dying;
+                Invoke("LoadFirstScene", 1f);
                 break;
         }
+    }
+
+    private void LoadFirstScene()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    private void LoadNextScene()
+    {
+        SceneManager.LoadScene(1);
     }
 
     private void Rotate()
