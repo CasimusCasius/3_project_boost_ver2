@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class Rocket : MonoBehaviour
 {
+    [SerializeField] float rotationSpeed = 100f;
+    [SerializeField] float throttleSpeed = 100f;
+
     Rigidbody rigidBody;
     AudioSource throttleSound;
 
@@ -20,28 +23,32 @@ public class Rocket : MonoBehaviour
     {
         Throttle(); 
         Rotate();
-
     }
+
+
 
     private void Rotate()
     {
+        float rotationPerFrame = rotationSpeed * Time.deltaTime;
         rigidBody.freezeRotation = true;
         if (Input.GetKey(KeyCode.A))
         {
-            transform.Rotate(Vector3.forward);
+            transform.Rotate(Vector3.forward * rotationPerFrame);
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            transform.Rotate(-Vector3.forward);
+            transform.Rotate(-Vector3.forward*rotationPerFrame);
         }
         rigidBody.freezeRotation = false;
     }
 
     private void Throttle()
     {
+        float throttlePerFrame = throttleSpeed * Time.deltaTime;
+
         if (Input.GetKey(KeyCode.Space))
         {
-            rigidBody.AddRelativeForce(Vector3.up);
+            rigidBody.AddRelativeForce(Vector3.up*throttlePerFrame);
             if (!throttleSound.isPlaying)
             {
                 throttleSound.Play();
