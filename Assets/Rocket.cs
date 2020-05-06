@@ -5,49 +5,70 @@ public class Rocket : MonoBehaviour
 {
     [SerializeField] float rotationSpeed = 100f;
     [SerializeField] float throttleSpeed = 100f;
+    [SerializeField] AudioClip mainEngine;
+    [SerializeField] AudioClip dyingSFX;
+    [SerializeField] AudioClip winningSFX;
 
-
-    enum State {Alive, Dying, Transcending}
+    enum State { Alive, Dying, Transcending }
     State state = State.Alive;
 
     Rigidbody rigidBody;
-    AudioSource throttleSound;
+    AudioSource audioSource;
 
-    // Start is called before the first frame update
     void Start()
     {
         rigidBody = GetComponent<Rigidbody>();
-        throttleSound = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (state == State.Alive)
         {
-            Throttle();
-            Rotate();
+            RespondToThrottle();
+            RespondToRotate();
         }
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if (state != State.Alive) return;
+        if (state != State.Alive)
+        { 
+            return; 
+        }
+        else
+        {
+            audioSource.Stop();
+        }
+
 
         switch (collision.gameObject.tag)
         {
             case "Friendly":
-                
+
                 break;
             case "Finish":
-                Invoke("LoadNextScene", 1f); // TODO parametrise time
-                state = State.Transcending;
+                Win();
+
                 break;
             default:
-                state = State.Dying;
-                Invoke("LoadFirstScene", 1f);
+                Die();
                 break;
         }
+    }
+
+    private void Die()
+    {
+        state = State.Dying;
+        audioSource.PlayOneShot(dyingSFX);
+        Invoke("LoadFirstScene", 1f);
+    }
+
+    private void Win()
+    {
+        state = State.Transcending;
+        audioSource.PlayOneShot(winningSFX);
+        Invoke("LoadNextScene", 1f); // TODO parametrise time
     }
 
     private void LoadFirstScene()
@@ -60,7 +81,7 @@ public class Rocket : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
-    private void Rotate()
+    private void RespondToRotate()
     {
         float rotationPerFrame = rotationSpeed * Time.deltaTime;
         rigidBody.freezeRotation = true;
@@ -70,28 +91,29 @@ public class Rocket : MonoBehaviour
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            transform.Rotate(-Vector3.forward*rotationPerFrame);
+            transform.Rotate(-Vector3.forward * rotationPerFrame);
         }
         rigidBody.freezeRotation = false;
     }
 
-    private void Throttle()
+    private void RespondToThrottle()
     {
-        float throttlePerFrame = throttleSpeed * Time.deltaTime;
-
         if (Input.GetKey(KeyCode.Space))
         {
-            rigidBody.AddRelativeForce(Vector3.up*throttlePerFrame);
-            if (!throttleSound.isPlaying)
-            {
-                throttleSound.Play();
-            }
+            Throttle();
         }
         else
         {
-            throttleSound.Stop();
+            audioSource.Stop();
+        }
+    }
+
+    private void Throttle()
+    {
+        rigidBody.AddRelativeForce(Vector3.up * throttleSpeed * Time.deltaTime);
+        if (!audioSource.isPlaying)
+        {
+            audioSource.PlayOneShot(mainEngine);
         }
     }
 }
-
-    
