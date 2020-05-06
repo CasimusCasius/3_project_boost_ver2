@@ -13,9 +13,9 @@ public class Rocket : MonoBehaviour
     [SerializeField] ParticleSystem engineVFX;
     [SerializeField] ParticleSystem dyingVFX;
     [SerializeField] ParticleSystem winningVFX;
-    
 
 
+    bool isCollider = true;
 
     enum State { Alive, Dying, Transcending }
     State state = State.Alive;
@@ -36,11 +36,29 @@ public class Rocket : MonoBehaviour
             RespondToThrottle();
             RespondToRotate();
         }
+        if (Debug.isDebugBuild)
+        {
+            RespondToDebugKeys();
+        }
+
+    }
+
+    private void RespondToDebugKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LoadNextScene();
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            isCollider = !isCollider;
+        }
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if (state != State.Alive)
+        if (state != State.Alive || !isCollider)
         { 
             return; 
         }
@@ -89,7 +107,15 @@ public class Rocket : MonoBehaviour
 
     private void LoadNextScene()
     {
-        SceneManager.LoadScene(1);
+        int index = SceneManager.GetActiveScene().buildIndex;
+        int lastLevel = SceneManager.sceneCountInBuildSettings;
+        
+        int nextIndex = index + 1;
+        if (nextIndex >= lastLevel)
+        {
+            nextIndex = 0;
+        }
+        SceneManager.LoadScene(nextIndex);
     }
 
     private void RespondToRotate()
