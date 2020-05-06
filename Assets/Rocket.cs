@@ -8,6 +8,11 @@ public class Rocket : MonoBehaviour
     [SerializeField] AudioClip mainEngine;
     [SerializeField] AudioClip dyingSFX;
     [SerializeField] AudioClip winningSFX;
+    [SerializeField] ParticleSystem engineVFX;
+    [SerializeField] ParticleSystem dyingVFX;
+    [SerializeField] ParticleSystem winningVFX;
+
+
 
     enum State { Alive, Dying, Transcending }
     State state = State.Alive;
@@ -39,6 +44,7 @@ public class Rocket : MonoBehaviour
         else
         {
             audioSource.Stop();
+            
         }
 
 
@@ -61,6 +67,7 @@ public class Rocket : MonoBehaviour
     {
         state = State.Dying;
         audioSource.PlayOneShot(dyingSFX);
+        dyingVFX.Play();
         Invoke("LoadFirstScene", 1f);
     }
 
@@ -68,6 +75,7 @@ public class Rocket : MonoBehaviour
     {
         state = State.Transcending;
         audioSource.PlayOneShot(winningSFX);
+        winningVFX.Play();
         Invoke("LoadNextScene", 1f); // TODO parametrise time
     }
 
@@ -105,6 +113,7 @@ public class Rocket : MonoBehaviour
         else
         {
             audioSource.Stop();
+            engineVFX.Stop();
         }
     }
 
@@ -115,5 +124,6 @@ public class Rocket : MonoBehaviour
         {
             audioSource.PlayOneShot(mainEngine);
         }
+        engineVFX.Play();
     }
 }
