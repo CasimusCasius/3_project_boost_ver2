@@ -5,12 +5,15 @@ public class Rocket : MonoBehaviour
 {
     [SerializeField] float rotationSpeed = 100f;
     [SerializeField] float throttleSpeed = 100f;
+    [SerializeField] float loadLevelDelay = 2f;
+
     [SerializeField] AudioClip mainEngine;
     [SerializeField] AudioClip dyingSFX;
     [SerializeField] AudioClip winningSFX;
     [SerializeField] ParticleSystem engineVFX;
     [SerializeField] ParticleSystem dyingVFX;
     [SerializeField] ParticleSystem winningVFX;
+    
 
 
 
@@ -44,7 +47,7 @@ public class Rocket : MonoBehaviour
         else
         {
             audioSource.Stop();
-            
+            engineVFX.Stop();
         }
 
 
@@ -68,7 +71,7 @@ public class Rocket : MonoBehaviour
         state = State.Dying;
         audioSource.PlayOneShot(dyingSFX);
         dyingVFX.Play();
-        Invoke("LoadFirstScene", 1f);
+        Invoke("LoadFirstScene", loadLevelDelay);
     }
 
     private void Win()
@@ -76,7 +79,7 @@ public class Rocket : MonoBehaviour
         state = State.Transcending;
         audioSource.PlayOneShot(winningSFX);
         winningVFX.Play();
-        Invoke("LoadNextScene", 1f); // TODO parametrise time
+        Invoke("LoadNextScene", loadLevelDelay); // TODO parametrise time
     }
 
     private void LoadFirstScene()
